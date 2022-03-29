@@ -190,8 +190,9 @@ export default {
       }
 
 
-      axios.post('/product', product).then(response => {
+      axios.post('http://127.0.0.1:8000/product/save/', product).then(response => {
         console.log(response.data);
+        console.log('Posted products successfuly...');
       }).catch(error => {
         console.log(error);
       })

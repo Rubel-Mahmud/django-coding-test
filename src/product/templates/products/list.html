@@ -1,11 +1,18 @@
 {% extends 'backend/base.html' %}
 
+{% load humanize %}
+
 {% block title %} Product List {% endblock %}
 
 {% block content %}
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Products</h1>
+    {% if price_from %}
+    <small>{{ price_from }}</small>
+    {% else %}
+    <small>Price Not available</small>
+    {% endif %}
 </div>
 
 
@@ -17,9 +24,14 @@
             </div>
             <div class="col-md-2">
                 <select name="variant" id="" class="form-control">
-                    <option selected disabled>--Select A Variant--</option>
-
+                    {% for variant in variants %}
+                        <option selected disabled>{{ variant.title }}</option>
+                        {% for product_variant in variant.productvariant_set.all %}
+                            <option value="{{ product_variant.variant_title }}">{{ product_variant.variant_title }}</option>
+                        {% endfor %}
+                    {% endfor %}
                 </select>
+
             </div>
 
             <div class="col-md-3">
@@ -55,58 +67,45 @@
                 </thead>
 
                 <tbody>
+                {% for product in page_obj %}
                 <tr>
-                    <td>1</td>
-                    <td>T-Shirt <br> Created at : 25-Aug-2020</td>
-                    <td>Quality product in low cost</td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ product.title }}<br> Created at : {{ product.created_at|naturaltime }}</td>
+                    <td>{{ product.description }}</td>
                     <td>
                         <dl class="row mb-0" style="height: 80px; overflow: hidden" id="variant">
+                                
+                            {% for prd_var_price in product.productvariantprice_set.all %}
+
                                 <dt class="col-sm-3 pb-0">
-                                    XL/ Black/ Full
+                                    {{ prd_var_price.product_variant_one.variant_title }}/
+                                    {% if prd_var_price.product_variant_two %} 
+                                        {{ prd_var_price.product_variant_two.variant_title }}/
+                                    {% endif %}
+                                    {% if prd_var_price.product_variant_three %} 
+                                        {{ prd_var_price.product_variant_three.variant_title }}
+                                    {% endif %}
                                 </dt>
                                 <dd class="col-sm-9">
                                     <dl class="row mb-0">
-                                        <dd class="col-sm-4 pb-0">Price : 200.0</dd>
-                                        <dd class="col-sm-8 pb-0">InStock : 50.</dd>
+                                        <dd class="col-sm-4 pb-0">Price : {{ prd_var_price.price }}</dd>
+                                        <dd class="col-sm-8 pb-0">InStock : {{ prd_var_price.stock }}</dd>
                                     </dl>
                                 </dd>
-                                <dt class="col-sm-3 pb-0">
-                                    XL/ Black/ Half
-                                </dt>
-                                <dd class="col-sm-9">
-                                    <dl class="row mb-0">
-                                        <dd class="col-sm-4 pb-0">Price : 200.0</dd>
-                                        <dd class="col-sm-8 pb-0">InStock : 50.</dd>
-                                    </dl>
-                                </dd>
-                                <dt class="col-sm-3 pb-0">
-                                    L/ Black/ Full
-                                </dt>
-                                <dd class="col-sm-9">
-                                    <dl class="row mb-0">
-                                        <dd class="col-sm-4 pb-0">Price : 200.0</dd>
-                                        <dd class="col-sm-8 pb-0">InStock : 50.</dd>
-                                    </dl>
-                                </dd>
-                                <dt class="col-sm-3 pb-0">
-                                    L/ Black/ Half
-                                </dt>
-                                <dd class="col-sm-9">
-                                    <dl class="row mb-0">
-                                        <dd class="col-sm-4 pb-0">Price : 200.0</dd>
-                                        <dd class="col-sm-8 pb-0">InStock : 50.</dd>
-                                    </dl>
-                                </dd>
+
+                            {% endfor %}
+                              
                             </dl>
                         <button onclick="$('#variant').toggleClass('h-auto')" class="btn btn-sm btn-link">Show more
                         </button>
                     </td>
                     <td>
                         <div class="btn-group btn-group-sm">
-                            <a href="" class="btn btn-success">Edit</a>
+                            <a href="#" class="btn btn-success">Edit</a>
                         </div>
                     </td>
                 </tr>
+                {% endfor %}
                 </tbody>
 
             </table>
@@ -115,14 +114,54 @@
     </div>
 
     <div class="card-footer">
-        <div class="row justify-content-between">
-            <div class="col-md-6">
-                <p>Showing 1 to 10 out of 100</p>
-            </div>
-            <div class="col-md-2">
-
+        <div class="paginator_class">
+            <div class="row">
+              <div class="col-md-6" style="text-align:left;">
+                <span class="current">
+                    <p>Showing 1 to {{ page_obj.number }} out of {{ page_obj.paginator.num_pages }}</p>
+                </span>
+              </div>
+                <div class="col-md-6">
+                    <nav aria-label="...">
+                      <ul class="pagination pagination-sm justify-content-end">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+  
+                        {% for page_no in page_obj.paginator.page_range %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_no }}">{{ page_no }}</a></li>
+                        {% endfor %}
+  
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                          <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                      </ul>
+                    </nav>
+                </div>
             </div>
         </div>
+
+        
     </div>
 </div>
 {% endblock %}
