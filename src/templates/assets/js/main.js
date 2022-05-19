@@ -11,3 +11,9 @@ Vue.component('create-product', require('./components/product/CreateProduct.vue'
 const main = new Vue({
     el: '#app'
 })
+
+Vue.component('update-product', require('./components/product/UpdateProduct.vue').default)
+
+const app = new Vue({
+    el: '#update'
+})

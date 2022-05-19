@@ -115,6 +115,7 @@ export default {
   },
   data() {
     return {
+      product_id: -1,
       product_name: '',
       product_sku: '',
       description: '',
@@ -181,6 +182,7 @@ export default {
     // store product into database
     saveProduct() {
       let product = {
+        product_id:this.product_id,
         title: this.product_name,
         sku: this.product_sku,
         description: this.description,

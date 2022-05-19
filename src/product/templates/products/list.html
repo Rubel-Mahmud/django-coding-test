@@ -2,6 +2,8 @@
 
 {% load humanize %}
 
+{% load change_string_case %}
+
 {% block title %} Product List {% endblock %}
 
 {% block content %}
@@ -70,13 +72,14 @@
                 {% for product in page_obj %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ product.title }}<br> Created at : {{ product.created_at|naturaltime }}</td>
+                    <td>{{ product.title }}<br> Created at : {{ product.created_at }}</td>
+                    
                     <td>{{ product.description }}</td>
                     <td>
                         <dl class="row mb-0" style="height: 80px; overflow: hidden" id="variant">
                                 
                             {% for prd_var_price in product.productvariantprice_set.all %}
-
+                                
                                 <dt class="col-sm-3 pb-0">
                                     {{ prd_var_price.product_variant_one.variant_title }}/
                                     {% if prd_var_price.product_variant_two %} 
@@ -101,7 +104,7 @@
                     </td>
                     <td>
                         <div class="btn-group btn-group-sm">
-                            <a href="#" class="btn btn-success">Edit</a>
+                            <a href="{% url 'product:update.product' product.id %}" class="btn btn-success">Edit</a>
                         </div>
                     </td>
                 </tr>
